@@ -61,4 +61,4 @@ def load_dataset(directory):
 trainX,trainY = load_dataset(r'dataset\\')
 print(trainX.shape,trainY.shape)
 #compress the data
-savez_compressed('surya-dataset.npz',trainX,trainY)
+savez_compressed('pandu-dataset.npz',trainX,trainY)
