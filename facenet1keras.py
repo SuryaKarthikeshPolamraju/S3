@@ -19,7 +19,7 @@ def extract_embeddings(model,face_pixels):
 data = load('surya-dataset.npz')
 trainx, trainy = data['arr_0'],data['arr_1']
 print(trainx.shape, trainy.shape)
-model = load_model('facenet_keras.h5')
+model = load_model('facenet_model.h5')
 
 #get the face embeddings
 new_trainx = list()
