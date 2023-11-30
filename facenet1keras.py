@@ -16,7 +16,7 @@ def extract_embeddings(model,face_pixels):
   return yhat[0]
 
 #load the compressed dataset and facenet keras model
-data = load('surya-dataset.npz')
+data = load('student-dataset.npz')
 trainx, trainy = data['arr_0'],data['arr_1']
 print(trainx.shape, trainy.shape)
 model = load_model('facenet_model.h5')
@@ -30,4 +30,4 @@ new_trainx = asarray(new_trainx)             #convert the embeddings into numpy 
 print(new_trainx.shape)
 
 #compress the 128 embeddings of each face 
-savez_compressed('surya-dataset.npz',new_trainx,trainy)
+savez_compressed('student-embeddings.npz',new_trainx,trainy)
