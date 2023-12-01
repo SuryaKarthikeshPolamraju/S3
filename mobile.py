@@ -10,7 +10,7 @@ client = Client(account_sid, auth_token)
 
 # Your Twilio phone number and the recipient's phone number
 twilio_phone_number = '+16414274501'
-recipient_phone_number = '+916309549744'  # Replace with the recipient's Indian phone number
+recipient_phone_number = '+916301219834'  # Replace with the recipient's Indian phone number
 
 # The message you want to send
 message_text = 'Hii BSDK'
