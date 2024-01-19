@@ -3,14 +3,13 @@ import numpy as np
 from tensorflow.keras.models import load_model
 from tensorflow.keras.applications.inception_resnet_v2 import preprocess_input
 from mtcnn.mtcnn import MTCNN
+from sklearn.svm import SVC
+from sklearn.preprocessing import LabelEncoder
+import os
 import joblib
 
 # Load the trained FaceNet model
 facenet_model = load_model('facenet_model_custom.h5')
-
-# Load the SVM model and label encoder
-svm_model = joblib.load('svm_model.pkl')
-label_encoder = joblib.load('label_encoder.pkl')
 
 # Function to preprocess the face for recognition
 def preprocess_face(face_pixels):
@@ -18,6 +17,38 @@ def preprocess_face(face_pixels):
     mean, std = face_pixels.mean(), face_pixels.std()
     face_pixels = (face_pixels - mean) / std
     return face_pixels
+
+# Function to load the dataset
+def load_dataset(directory):
+    X, y = list(), list()
+    for subdir in os.listdir(directory):
+        path = os.path.join(directory, subdir)
+        if not os.path.isdir(path):
+            continue
+        for filename in os.listdir(path):
+            img_path = os.path.join(path, filename)
+            img = cv2.imread(img_path)
+            face = cv2.resize(img, (160, 160))
+            face = preprocess_face(face)
+            X.append(face)
+            y.append(subdir)
+    return np.asarray(X), np.asarray(y)
+
+# Load the dataset
+dataset_directory = 'C:/Users/pskar/OneDrive/Documents/GitHub/S3/dataset'
+X, y = load_dataset(dataset_directory)
+
+# Encode labels
+label_encoder = LabelEncoder()
+y_encoded = label_encoder.fit_transform(y)
+
+# Train SVM model
+svm_model = SVC(kernel='linear', probability=True)
+svm_model.fit(X.reshape(X.shape[0], -1), y_encoded)
+
+# Save the trained SVM model and label encoder
+joblib.dump(svm_model, 'svm_model.pkl')
+joblib.dump(label_encoder, 'label_encoder.pkl')
 
 # Function to recognize faces in real-time
 def recognize_faces():
@@ -51,15 +82,18 @@ def recognize_faces():
 
             if confidence > 0.7:
                 text = f"{person} (Confidence: {confidence:.2f})"
+                color = (0, 255, 0)  # Green color for bounding box
             else:
                 text = "Unknown"
+                color = (0, 0, 255)  # Red color for bounding box
 
-            print(text)  # Output the result to the console
+            cv2.rectangle(frame, (x, y), (x+width, y+height), color, 2)  # Draw bounding box
+            cv2.putText(frame, text, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)  # Display name and confidence
 
-        #cv2.imshow('Facial Recognition', frame)
+        cv2.imshow('Facial Recognition', frame)
 
-        #if cv2.waitKey(1) & 0xFF == 27:  # Press 'Esc' to exit
-          #  break
+        if cv2.waitKey(1) & 0xFF == 27:  # Press 'Esc' to exit
+            break
 
     cap.release()
     cv2.destroyAllWindows()
